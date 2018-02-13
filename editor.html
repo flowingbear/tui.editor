@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>TOAST UI Editor by FE Development Lab / NHN Entertainment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- OpenGraph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="TOAST UI Editor" />
+    <meta property="og:description" content="GFM Markdown Wysiwyg Editor - Productive and Extensible" />
+    <meta property="og:image" content="https://user-images.githubusercontent.com/1215767/34353629-95b58da0-ea6c-11e7-859b-df5e990dd157.png" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" href="bower_components/tui-color-picker/dist/tui-color-picker.css">
+    <link rel="stylesheet" href="bower_components/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="bower_components/highlightjs/styles/github.css">
+    <link rel="stylesheet" href="bower_components/tui-chart/dist/tui-chart.min.css">
+    <link rel="stylesheet" href="bower_components/tui-editor/dist/tui-editor.min.css">
+    <link rel="stylesheet" href="bower_components/tui-editor/dist/tui-editor-contents.min.css">
+    <script src="bower_components/markdown-it/dist/markdown-it.min.js"></script>
+    <script src="bower_components/toMark/dist/toMark.min.js"></script>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/tui-code-snippet/dist/tui-code-snippet.min.js"></script>
+    <script src="bower_components/tui-color-picker/dist/tui-color-picker.min.js"></script>
+    <script src="bower_components/codemirror/lib/codemirror.js"></script>
+    <script src="bower_components/highlightjs/highlight.pack.min.js"></script>
+    <script src="bower_components/squire-rte/build/squire.js"></script>
+    <script src="bower_components/plantuml-encoder/dist/plantuml-encoder.min.js"></script>
+    <script src="bower_components/raphael/raphael.min.js"></script>
+    <script src="bower_components/tui-chart/dist/tui-chart.min.js"></script>
+    <script src="bower_components/tui-editor/dist/tui-editor-Editor-all.min.js"></script>
+    <style>
+     #editSection, #editSection *,
+     .tui-editor-contents *,
+     .CodeMirror pre {
+         font-family: Roboto, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Oxygen", "Ubuntu", "Cantarell", "Open Sans", sans-serif;
+     }
+
+     #editSection button,
+     #editSection input,
+     #editSection .te-editor {
+         font-size: 12px;
+     }
+
+     #editSection h1,
+     #editSection h2,
+     #editSection h3,
+     #editSection h4,
+     #editSection h5,
+     #editSection h6 {
+         color: #222;
+         font-weight: 300;
+     }
+
+     #editSection .tui-popup-body h1 {
+         font-size: 28px;
+         color: black;
+     }
+
+     #editSection h1:first-of-type {
+         margin-top: 14px;
+     }
+
+     #editSection .tui-popup-body h2 {
+         font-size: 24px;
+         border-bottom: 1px solid #cccccc;
+         color: black;
+     }
+
+     #editSection .tui-popup-body h3 {
+         font-size: 18px;
+     }
+
+     #editSection .tui-popup-body h4 {
+         font-size: 16px;
+     }
+
+     #editSection .tui-popup-body h5 {
+         font-size: 14px;
+     }
+
+     #editSection .tui-popup-body h6 {
+         color: #777777;
+         font-size: 14px;
+     }
+
+     button {
+         font-size: 12px
+     }
+
+     .show-toolbar .tui-editor-defaultUI {
+         border: 1px solid #e5e5e5
+     }
+
+     .tui-editor-defaultUI {
+         margin: 15px 0;
+     }
+
+     .te-md-container,
+     .te-ww-container {
+         width: 100%
+     }
+
+     .te-md-container .CodeMirror,
+     .tui-editor-contents {
+         font-size: 20px;
+     }
+
+     .show-only-text .te-toolbar-section,
+     .show-only-text .te-mode-switch-section,
+     .show-only-text .te-markdown-tab-section {
+         visibility: hidden !important;
+         opacity: 0;
+         transition: visibility 0s linear 300ms, opacity 300ms;
+     }
+
+     .show-only-text:hover .te-toolbar-section,
+     .show-only-text:hover .te-mode-switch-section,
+     .show-only-text:hover .te-markdown-tab-section {
+         visibility: visible !important;
+         opacity: 1;
+         transition: visibility 0s linear 0ms, opacity 300ms;
+     }
+
+     .show-only-text .tui-editor-defaultUI {
+         border: 1px solid rgba(255, 255, 255, 0);
+         transition: border-color 0s linear 300ms, border-color 300ms;
+     }
+
+     .show-only-text:hover .tui-editor-defaultUI {
+         border: 1px solid #e5e5e5;
+         transition: border-color 0s linear 0ms, border-color 300ms;
+     }
+
+     .tui-editor-contents,
+     .CodeMirror {
+         color: #606c71;
+     }
+
+     .tui-editor-contents .task-list-item {
+         background-position: 0 5px;
+     }
+
+     .te-md-container .te-preview {
+         overflow-x: hidden;
+         overflow-y: auto;
+     }
+
+     .CodeMirror .cm-header {
+         font-weight: 300;
+     }
+
+     b, strong, .cm-strong {
+         font-weight: 400;
+     }
+
+     .site-footer {
+         text-align:center;
+     }
+
+    </style>
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Config Editor</h1>
+      <h2 class="project-tagline">Combine markdown as explanation and code block as config values</h2>
+      <a href="api/latest/" class="btn" target="_blank" style="margin-left:5px">API</a>
+    </section>
+
+    <section class="main-content">
+	  <button class="fn-download">Export</button>
+	  <div id="editor-intro" class="show-only-text"></div>
+      <div id="editor" class="show-only-text"></div>
+	  <button class="fn-download">Export</button>
+      
+      <footer class="site-footer">
+          <a>WD site info </a>
+      </footer>
+    </section>
+    <script>
+	  $('#editor').tuiEditor({
+          height: 'auto',
+        initialEditType: 'markdown',
+        previewStyle: 'vertical',
+          initialValue: '![ToastEditorLogo](https://cloud.githubusercontent.com/assets/389021/16107646/9729e556-33d8-11e6-933f-5b09fa3a53bb.png)\n\n' +
+          '**TOAST UI Editor** provides **Markdown mode** and **WYSIWYG mode**.\n' +
+          'Someone may like the productivity of *Markdown*, but the other can be looking for a way to make it easier to edit. The **TOAST UI Editor** can be the coordinator of both. It offers **Markdown mode** and **WYSIWYG mode**, those can be switched at any time during writing content. Work together conveniently in one document.'
+      });
+	  
+
+      $(document).on('click', function(e) {
+          if ($(e.target).parents('.show-only-text').length === 0) {
+              $('.show-only-text').removeClass('show-toolbar');
+          }
+      });
+	  
+	  $("[class='fn-download']").on('click', function(e) {
+			var text=$('#editor').data('tuiEditor').getMarkdown();
+			var filename='export.json';
+			var pom = document.createElement('a');
+			pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+			pom.setAttribute('download', filename);
+	  
+			if (document.createEvent) {
+				var event = document.createEvent('MouseEvents');
+				event.initEvent('click', true, true);
+				pom.dispatchEvent(event);
+			}
+			else {
+				pom.click();
+			}
+	  });
+
+    </script>
+
+    <!-- Github -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+  </body>
+</html>
