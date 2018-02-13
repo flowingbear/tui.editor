@@ -169,23 +169,73 @@
     </section>
 
     <section class="main-content">
+	  <button class="fn-preview">Preview</button>
 	  <button class="fn-download">Export</button>
-	  <div id="editor-intro" class="show-only-text"></div>
-      <div id="editor" class="show-only-text"></div>
-	  <button class="fn-download">Export</button>
+	  <div id="editor" class="show-only-text"></div>
+	  <div id="viewer" class="show-only-text"></div>
+	  <button class="fn-preview">Preview</button>
+      <button class="fn-download">Export</button>
       
       <footer class="site-footer">
           <a>WD site info </a>
       </footer>
     </section>
     <script>
+	function isEmpty(value){
+		return (typeof value === "undefined" || value === null);
+	}
+
+	
+	  function extractJson(text) {
+		if (isEmpty(text))
+			return '';
+		var startAt0 =  text.indexOf("\`\`\`") == 0;
+		var matches= text.split(/\`\`\`/g);
+		console.log('matches = ' , matches);
+		if (matches.length < 3 )
+			return '';
+		if ( startAt0  && matches.length <2)
+			return '';
+		var i =startAt0 ? 0 : 1;
+		
+		var json= [];
+		while (i < matches.length) {
+			json = json 
+				? $.merge( json, parseCodeBlock(matches[i]))
+				: parseCodeBlock(matches[i]);
+			i+=2;
+		}
+		console.log('json = ' , json);
+		return json;
+	  }
+	  function mkJson(a,b) {
+		return a.replace("?", "{\"" + b + "\":?}");
+	  }
+	  
+	  function parseCodeBlock(jsCodeBlock) {
+		if (jsCodeBlock.startsWith('js')) {
+			var block = jsCodeBlock.substr(2).trim();
+			console.log('block = ', block);
+			pos = block.indexOf('\n');
+			var jsonStr = block.substr(pos+1).replace('\n','');
+			var path = block.substr(0,pos).split('.');
+			//path.push(jsonStr);
+			console.log('path', path);
+			var fullJson = path.reduce( mkJson , "?" ).replace("?", jsonStr);
+			
+			console.log('fullJson', fullJson);
+			var obj = JSON.parse(fullJson);
+			console.log('sub obj = ', obj);
+			return obj;
+		}
+		
+	  }
+	  
 	  $('#editor').tuiEditor({
           height: 'auto',
         initialEditType: 'markdown',
         previewStyle: 'vertical',
-          initialValue: '![ToastEditorLogo](https://cloud.githubusercontent.com/assets/389021/16107646/9729e556-33d8-11e6-933f-5b09fa3a53bb.png)\n\n' +
-          '**TOAST UI Editor** provides **Markdown mode** and **WYSIWYG mode**.\n' +
-          'Someone may like the productivity of *Markdown*, but the other can be looking for a way to make it easier to edit. The **TOAST UI Editor** can be the coordinator of both. It offers **Markdown mode** and **WYSIWYG mode**, those can be switched at any time during writing content. Work together conveniently in one document.'
+        initialValue: 'config 1\n```js hk\n{"a" : "b" }\n```\nconfig 2\n```js hk.wanchai\n {"c":"d"}\n```\n'
       });
 	  
 
@@ -195,9 +245,20 @@
           }
       });
 	  
+	  $("[class='fn-preview']").on('click', function(e) {
+			var text=$('#editor').data('tuiEditor').getMarkdown();
+			var result = extractJson(text);
+			$('#viewer').tuiEditor({
+				height: '300px',
+				viewer: true,
+				initialValue: result
+			  });
+	  });
+	  
 	  $("[class='fn-download']").on('click', function(e) {
 			var text=$('#editor').data('tuiEditor').getMarkdown();
-			var filename='export.json';
+			
+			/*var filename='export.json';
 			var pom = document.createElement('a');
 			pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
 			pom.setAttribute('download', filename);
@@ -209,7 +270,7 @@
 			}
 			else {
 				pom.click();
-			}
+			}*/
 	  });
 
     </script>
