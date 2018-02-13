@@ -30,6 +30,7 @@
     <script src="bower_components/raphael/raphael.min.js"></script>
     <script src="bower_components/tui-chart/dist/tui-chart.min.js"></script>
     <script src="bower_components/tui-editor/dist/tui-editor-Editor-all.min.js"></script>
+	<script src="deepmerge.js"></script>
     <style>
      #editSection, #editSection *,
      .tui-editor-contents *,
@@ -186,22 +187,23 @@
 	}
 
 	
-	  function extractJson(text) {
+	  function extractJsonObj(text) {
 		if (isEmpty(text))
 			return '';
+		//list out all code blocks by ```
 		var startAt0 =  text.indexOf("\`\`\`") == 0;
 		var matches= text.split(/\`\`\`/g);
-		console.log('matches = ' , matches);
 		if (matches.length < 3 )
 			return '';
 		if ( startAt0  && matches.length <2)
 			return '';
 		var i =startAt0 ? 0 : 1;
 		
+		//parse code block and join to big json
 		var json= [];
 		while (i < matches.length) {
 			json = json 
-				? $.merge( json, parseCodeBlock(matches[i]))
+				? deepmerge(json, parseCodeBlock(matches[i]))
 				: parseCodeBlock(matches[i]);
 			i+=2;
 		}
@@ -237,6 +239,11 @@
         previewStyle: 'vertical',
         initialValue: 'config 1\n```js hk\n{"a" : "b" }\n```\nconfig 2\n```js hk.wanchai\n {"c":"d"}\n```\n'
       });
+	  $('#viewer').tuiEditor({
+				height: '300px',
+				viewer: true,
+				initialValue: ''
+	  });
 	  
 
       $(document).on('click', function(e) {
@@ -247,18 +254,14 @@
 	  
 	  $("[class='fn-preview']").on('click', function(e) {
 			var text=$('#editor').data('tuiEditor').getMarkdown();
-			var result = extractJson(text);
-			$('#viewer').tuiEditor({
-				height: '300px',
-				viewer: true,
-				initialValue: result
-			  });
+			var result = extractJsonObj(text);
+			$('#viewer').data('tuiEditor').setValue("```js\n"+ JSON.stringify(result, null, 2) +"\n```");
 	  });
 	  
 	  $("[class='fn-download']").on('click', function(e) {
 			var text=$('#editor').data('tuiEditor').getMarkdown();
 			
-			/*var filename='export.json';
+			var filename='export.json';
 			var pom = document.createElement('a');
 			pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
 			pom.setAttribute('download', filename);
@@ -270,9 +273,8 @@
 			}
 			else {
 				pom.click();
-			}*/
+			}
 	  });
-
     </script>
 
     <!-- Github -->
