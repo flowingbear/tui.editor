@@ -1,0 +1,8 @@
+title: ToastUI Editor
+description: GFM Markdown Wysiwyg Editor - Productive and Extensible
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-minimal
+
+gems:
+  - jekyll-mentions
