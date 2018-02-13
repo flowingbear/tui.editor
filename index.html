@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>TOAST UI Editor by FE Development Lab / NHN Entertainment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- OpenGraph -->
+    <meta property="og:url" content="https://nhnent.github.io/tui.editor" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="TOAST UI Editor" />
+    <meta property="og:description" content="GFM Markdown Wysiwyg Editor - Productive and Extensible" />
+    <meta property="og:image" content="https://user-images.githubusercontent.com/1215767/34353629-95b58da0-ea6c-11e7-859b-df5e990dd157.png" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" href="bower_components/tui-color-picker/dist/tui-color-picker.css">
+    <link rel="stylesheet" href="bower_components/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="bower_components/highlightjs/styles/github.css">
+    <link rel="stylesheet" href="bower_components/tui-chart/dist/tui-chart.min.css">
+    <link rel="stylesheet" href="bower_components/tui-editor/dist/tui-editor.min.css">
+    <link rel="stylesheet" href="bower_components/tui-editor/dist/tui-editor-contents.min.css">
+    <script src="bower_components/markdown-it/dist/markdown-it.min.js"></script>
+    <script src="bower_components/toMark/dist/toMark.min.js"></script>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/tui-code-snippet/dist/tui-code-snippet.min.js"></script>
+    <script src="bower_components/tui-color-picker/dist/tui-color-picker.min.js"></script>
+    <script src="bower_components/codemirror/lib/codemirror.js"></script>
+    <script src="bower_components/highlightjs/highlight.pack.min.js"></script>
+    <script src="bower_components/squire-rte/build/squire.js"></script>
+    <script src="bower_components/plantuml-encoder/dist/plantuml-encoder.min.js"></script>
+    <script src="bower_components/raphael/raphael.min.js"></script>
+    <script src="bower_components/tui-chart/dist/tui-chart.min.js"></script>
+    <script src="bower_components/tui-editor/dist/tui-editor-Editor-all.min.js"></script>
+    <style>
+     #editSection, #editSection *,
+     .tui-editor-contents *,
+     .CodeMirror pre {
+         font-family: Roboto, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Oxygen", "Ubuntu", "Cantarell", "Open Sans", sans-serif;
+     }
+
+     #editSection button,
+     #editSection input,
+     #editSection .te-editor {
+         font-size: 12px;
+     }
+
+     #editSection h1,
+     #editSection h2,
+     #editSection h3,
+     #editSection h4,
+     #editSection h5,
+     #editSection h6 {
+         color: #222;
+         font-weight: 300;
+     }
+
+     #editSection .tui-popup-body h1 {
+         font-size: 28px;
+         color: black;
+     }
+
+     #editSection h1:first-of-type {
+         margin-top: 14px;
+     }
+
+     #editSection .tui-popup-body h2 {
+         font-size: 24px;
+         border-bottom: 1px solid #cccccc;
+         color: black;
+     }
+
+     #editSection .tui-popup-body h3 {
+         font-size: 18px;
+     }
+
+     #editSection .tui-popup-body h4 {
+         font-size: 16px;
+     }
+
+     #editSection .tui-popup-body h5 {
+         font-size: 14px;
+     }
+
+     #editSection .tui-popup-body h6 {
+         color: #777777;
+         font-size: 14px;
+     }
+
+     button {
+         font-size: 12px
+     }
+
+     .show-toolbar .tui-editor-defaultUI {
+         border: 1px solid #e5e5e5
+     }
+
+     .tui-editor-defaultUI {
+         margin: 15px 0;
+     }
+
+     .te-md-container,
+     .te-ww-container {
+         width: 100%
+     }
+
+     .te-md-container .CodeMirror,
+     .tui-editor-contents {
+         font-size: 20px;
+     }
+
+     .show-only-text .te-toolbar-section,
+     .show-only-text .te-mode-switch-section,
+     .show-only-text .te-markdown-tab-section {
+         visibility: hidden !important;
+         opacity: 0;
+         transition: visibility 0s linear 300ms, opacity 300ms;
+     }
+
+     .show-only-text:hover .te-toolbar-section,
+     .show-only-text:hover .te-mode-switch-section,
+     .show-only-text:hover .te-markdown-tab-section {
+         visibility: visible !important;
+         opacity: 1;
+         transition: visibility 0s linear 0ms, opacity 300ms;
+     }
+
+     .show-only-text .tui-editor-defaultUI {
+         border: 1px solid rgba(255, 255, 255, 0);
+         transition: border-color 0s linear 300ms, border-color 300ms;
+     }
+
+     .show-only-text:hover .tui-editor-defaultUI {
+         border: 1px solid #e5e5e5;
+         transition: border-color 0s linear 0ms, border-color 300ms;
+     }
+
+     .tui-editor-contents,
+     .CodeMirror {
+         color: #606c71;
+     }
+
+     .tui-editor-contents .task-list-item {
+         background-position: 0 5px;
+     }
+
+     .te-md-container .te-preview {
+         overflow-x: hidden;
+         overflow-y: auto;
+     }
+
+     .CodeMirror .cm-header {
+         font-weight: 300;
+     }
+
+     b, strong, .cm-strong {
+         font-weight: 400;
+     }
+
+     .site-footer {
+         text-align:center;
+     }
+     .social {
+         position: absolute;
+         right: 10px;
+         top: 10px;
+     }
+     .social > * {
+         margin-left: 10px;
+     }
+     .social .fb-share-button {
+         top: -5px;
+     }
+     .social .github-button {
+         color: transparent;
+     }
+    </style>
+  </head>
+  <body>
+    <section class="page-header">
+      <div class="social">
+        <div class="fb-share-button"
+          data-href="https://nhnent.github.io/tui.editor"
+          data-layout="button"
+          data-size="small"
+          data-mobile-iframe="false">
+            <a class="fb-xfbml-parse-ignore"
+              target="_blank"
+              href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fnhnent.github.io%2Ftui.editor&amp;src=sdkpreparse">
+            </a>
+        </div>
+        <a class="twitter-share-button"
+          href="https://twitter.com/intent/tweet?text=TOAST%20UI%20Editor%20-%20#javascript%20#WYSIWYG%20#Markdown%20#Editor"
+          data-size="small">
+        </a>
+        <a class="github-button"
+          href="https://github.com/nhnent/tui.editor"
+          data-icon="octicon-star"
+          data-show-count="true"
+          aria-label="Star nhnent/tui.editor on GitHub">
+            Star
+        </a>
+      </div>
+      <h1 class="project-name">TOAST UI Editor</h1>
+      <h2 class="project-tagline">GFM Markdown WYSIWYG Editor - Productive and Extensible</h2>
+      <a href="https://github.com/nhnent/tui.editor" class="btn">View on GitHub</a>
+      <a href="api/latest/" class="btn" target="_blank" style="margin-left:5px">API</a>
+    </section>
+
+    <section class="main-content">
+      <div id="editor-intro" class="show-only-text"></div>
+
+      <div id="editSection"></div>
+
+      <div id="editor-spec" class="show-only-text"></div>
+
+      <div id="editor-extension-description" class="show-only-text"></div>
+
+      <div id="editor-extension-chart" class="show-only-text"></div>
+
+      <footer class="site-footer">
+          <a href="https://github.com/nhnent/tui.editor">TOAST UI Editor</a> is maintained by 🍞 FE Development Lab / 🏢 <a href="https://github.com/nhnent/">NHN Entertainment</a>.
+      </footer>
+    </section>
+    <script>
+
+      $('#editor-intro').tuiEditor({
+          height: 'auto',
+          initialEditType: 'wysiwyg',
+          initialValue: '![ToastEditorLogo](https://cloud.githubusercontent.com/assets/389021/16107646/9729e556-33d8-11e6-933f-5b09fa3a53bb.png)\n\n' +
+          '**TOAST UI Editor** provides **Markdown mode** and **WYSIWYG mode**.\n' +
+          'Someone may like the productivity of *Markdown*, but the other can be looking for a way to make it easier to edit. The **TOAST UI Editor** can be the coordinator of both. It offers **Markdown mode** and **WYSIWYG mode**, those can be switched at any time during writing content. Work together conveniently in one document.'
+      });
+
+      $('#editor-spec').tuiEditor({
+          height: 'auto',
+          initialEditType: 'wysiwyg',
+          initialValue: '# <span style="color:#4b94e5">Features</span>\n' +
+          '* **![image](https://user-images.githubusercontent.com/1215767/34385443-38d6ba28-eb66-11e7-958b-67e71552fa68.png) Markdown mode**\n' +
+          '    * **Live Preview**: Edit Markdown while keeping eye on the rendered HTML. Your edits will be applied immediately\n' +
+          '    * **Scroll sync**: Synchronous scrolling between Markdown and Preview. You don\'t need to scroll those separately\n' +
+          '    * **Auto indent list**: The cursor will always be where you want to be\n' +
+          '    * **Syntax highlight**: You can check broken Markdown syntax immediately\n' +
+          '* **🚀 Wisywig mode**\n' +
+          '    * **Copy and paste**: Paste anything from browser, screenshot, excel, powerpoint etc\n' +
+          '    * **Codeblock editor**: Highlight 170+ languages with full width code editor\n' +
+          '    * **Table**: Hate the Markdown table? You can do everything with a mouse'
+      });
+
+      $('#editor-extension-chart').tuiEditor({
+          height: 'auto',
+          initialEditType: 'markdown',
+          previewStyle: 'vertical',
+          initialValue: '```chart\n' +
+          ' Budget Income "Expenses 1" "Expenses 2"\n' +
+          'June 5000 8000 4000 4000\n' +
+          'July 3000 1000 4000 3000\n' +
+          'Aug 5000 7000 6000 2000\n' +
+          'Sep 7000 2000 3000 4000\n' +
+          '\n' +
+          'type: column\n' +
+          'title: Monthly Revenue\n' +
+          'y.title: Amount\n' +
+          'x.title: Month\n' +
+          'legend.visible: false\n' +
+          '```\n'
+      });
+
+      $('#editor-extension-description').tuiEditor({
+          height: 'auto',
+          initialEditType: 'wysiwyg',
+          initialValue: '# <span style="color:#4b94e5">Extensions</span>\n' +
+          '*CommonMark* and *GFM* are great, but we often face requirements beyond the specifications. The **TOAST UI Editor** comes with powerful **Extensions** in compliance with the *Markdown* syntax. And it also provides APIs so you can develop your own extensions.\n' +
+          'Please check *https://github.com/nhnent/tui.editor/wiki/Extensions* to learn about **Extensions**.\n'
+      });
+
+      $(document).on('click', function(e) {
+          if ($(e.target).parents('.show-only-text').length === 0) {
+              $('.show-only-text').removeClass('show-toolbar');
+          }
+      });
+
+      $('#editSection').tuiEditor({
+          previewStyle: 'vertical',
+          height: 400,
+          initialEditType: 'markdown',
+          exts: ['scrollSync', 'colorSyntax', 'table', 'uml', 'chart']
+      });
+    </script>
+    <!-- Facebook -->
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.11";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+    <!-- Twitter -->
+    <script>window.twttr = (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0],
+            t = window.twttr || {};
+        if (d.getElementById(id)) return t;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "https://platform.twitter.com/widgets.js";
+        fjs.parentNode.insertBefore(js, fjs);
+
+        t._e = [];
+        t.ready = function(f) {
+            t._e.push(f);
+        };
+
+        return t;
+    }(document, "script", "twitter-wjs"));</script>
+    <!-- Github -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+  </body>
+</html>
