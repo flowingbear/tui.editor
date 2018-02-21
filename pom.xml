@@ -1,0 +1,78 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+ 
+  <groupId>com.personal.bear</groupId>
+  <artifactId>markdown-to-config</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+ 
+  <name>markdown to config</name>
+  <url>https://flowingbear.github.io/tui.editor/</url>
+    
+  <properties>
+    <projectProp>yetAnotherValue</projectProp>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+          </execution>
+        </executions>
+      <configuration>
+        <properties>
+          <property>
+            <name>someProp</name>
+            <value>${someProp}</value>
+          </property>
+        </properties>
+        <scripts>
+          <script><![CDATA[
+            @Grapes([
+              @Grab(group='ch.qos.logback', module='logback-classic', version='1.1.3')
+            ])
+            import groovy.util.logging.Slf4j
+            log.debug("The settings are " + session.settings)
+            log.debug("This session's goals are " + session.goals)
+            log.debug("The local repository is " + session.localRepository)
+            log.debug("The reactor projects are " + session.sortedProjects)
+            log.debug("The plugin artifacts are " + pluginArtifacts)
+            log.debug("The mojo execution is " + mojoExecution)
+            log.debug("The plugin descriptor is " + mojoExecution.mojoDescriptor)
+            log.debug("someProp is " + someProp)
+            log.debug("projectProp is " + project.properties['projectProp'])
+            assert ant.project.baseDir == project.basedir
+            // the first reference is not filtered by Maven, the second reference is
+            assert "$project.name" == "${project.name}"
+          ]]></script>
+          <script>file:///${project.basedir}/xxx.groovy</script>
+        </scripts>
+      </configuration>
+      <dependencies>
+        <dependency>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy-all</artifactId>
+          <!-- any version of Groovy \>= 1.5.0 should work here -->
+          <version>2.4.12</version>
+          <scope>runtime</scope>
+        </dependency>
+      </dependencies>
+    </plugin>
+  </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <!-- this is here for both the script and the project to use -->
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.1.3</version>
+    </dependency>
+  </dependencies>
+</project>
