@@ -5,7 +5,6 @@
     <title>TOAST UI Editor by FE Development Lab / NHN Entertainment</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- OpenGraph -->
-    <meta property="og:url" content="https://nhnent.github.io/tui.editor" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="TOAST UI Editor" />
     <meta property="og:description" content="GFM Markdown Wysiwyg Editor - Productive and Extensible" />
@@ -31,6 +30,7 @@
     <script src="bower_components/raphael/raphael.min.js"></script>
     <script src="bower_components/tui-chart/dist/tui-chart.min.js"></script>
     <script src="bower_components/tui-editor/dist/tui-editor-Editor-all.min.js"></script>
+	<script src="deepmerge.js"></script>
     <style>
      #editSection, #editSection *,
      .tui-editor-contents *,
@@ -159,159 +159,124 @@
      .site-footer {
          text-align:center;
      }
-     .social {
-         position: absolute;
-         right: 10px;
-         top: 10px;
-     }
-     .social > * {
-         margin-left: 10px;
-     }
-     .social .fb-share-button {
-         top: -5px;
-     }
-     .social .github-button {
-         color: transparent;
-     }
+
     </style>
   </head>
   <body>
     <section class="page-header">
-      <div class="social">
-        <div class="fb-share-button"
-          data-href="https://nhnent.github.io/tui.editor"
-          data-layout="button"
-          data-size="small"
-          data-mobile-iframe="false">
-            <a class="fb-xfbml-parse-ignore"
-              target="_blank"
-              href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fnhnent.github.io%2Ftui.editor&amp;src=sdkpreparse">
-            </a>
-        </div>
-        <a class="twitter-share-button"
-          href="https://twitter.com/intent/tweet?text=TOAST%20UI%20Editor%20-%20#javascript%20#WYSIWYG%20#Markdown%20#Editor"
-          data-size="small">
-        </a>
-        <a class="github-button"
-          href="https://github.com/nhnent/tui.editor"
-          data-icon="octicon-star"
-          data-show-count="true"
-          aria-label="Star nhnent/tui.editor on GitHub">
-            Star
-        </a>
-      </div>
-      <h1 class="project-name">TOAST UI Editor</h1>
-      <h2 class="project-tagline">GFM Markdown WYSIWYG Editor - Productive and Extensible</h2>
-      <a href="https://github.com/nhnent/tui.editor" class="btn">View on GitHub</a>
+      <h1 class="project-name">Config Editor</h1>
+      <h2 class="project-tagline">Combine markdown as explanation and code block as config values</h2>
       <a href="api/latest/" class="btn" target="_blank" style="margin-left:5px">API</a>
     </section>
 
     <section class="main-content">
-      <div id="editor-intro" class="show-only-text"></div>
-
-      <div id="editSection"></div>
-
-      <div id="editor-spec" class="show-only-text"></div>
-
-      <div id="editor-extension-description" class="show-only-text"></div>
-
-      <div id="editor-extension-chart" class="show-only-text"></div>
-
+	  <button class="fn-preview">Preview</button>
+	  <button class="fn-download">Export</button>
+	  <div id="editor" class="show-only-text"></div>
+	  <div id="viewer" class="show-only-text"></div>
+	  <button class="fn-preview">Preview</button>
+      <button class="fn-download">Export</button>
+      
       <footer class="site-footer">
-          <a href="https://github.com/nhnent/tui.editor">TOAST UI Editor</a> is maintained by 🍞 FE Development Lab / 🏢 <a href="https://github.com/nhnent/">NHN Entertainment</a>.
+          <a>WD site info </a>
       </footer>
     </section>
     <script>
+	function isEmpty(value){
+		return (typeof value === "undefined" || value === null);
+	}
 
-      $('#editor-intro').tuiEditor({
+	
+	  function extractJsonObj(text) {
+		if (isEmpty(text))
+			return '';
+		//list out all code blocks by ```
+		var startAt0 =  text.indexOf("\`\`\`") == 0;
+		var matches= text.split(/\`\`\`/g);
+		if (matches.length < 3 )
+			return '';
+		if ( startAt0  && matches.length <2)
+			return '';
+		var i =startAt0 ? 0 : 1;
+		
+		//parse code block and join to big json
+		var json= [];
+		while (i < matches.length) {
+			json = json 
+				? deepmerge(json, parseCodeBlock(matches[i]))
+				: parseCodeBlock(matches[i]);
+			i+=2;
+		}
+		console.log('json = ' , json);
+		return json;
+	  }
+	  function mkJson(a,b) {
+		return a.replace("?", "{\"" + b + "\":?}");
+	  }
+	  
+	  function parseCodeBlock(jsCodeBlock) {
+		if (jsCodeBlock.startsWith('js')) {
+			var block = jsCodeBlock.substr(2).trim();
+			console.log('block = ', block);
+			pos = block.indexOf('\n');
+			var jsonStr = block.substr(pos+1).replace('\n','');
+			var path = block.substr(0,pos).split('.');
+			//path.push(jsonStr);
+			console.log('path', path);
+			var fullJson = path.reduce( mkJson , "?" ).replace("?", jsonStr);
+			
+			console.log('fullJson', fullJson);
+			var obj = JSON.parse(fullJson);
+			console.log('sub obj = ', obj);
+			return obj;
+		}
+		
+	  }
+	  
+	  $('#editor').tuiEditor({
           height: 'auto',
-          initialEditType: 'wysiwyg',
-          initialValue: '![ToastEditorLogo](https://cloud.githubusercontent.com/assets/389021/16107646/9729e556-33d8-11e6-933f-5b09fa3a53bb.png)\n\n' +
-          '**TOAST UI Editor** provides **Markdown mode** and **WYSIWYG mode**.\n' +
-          'Someone may like the productivity of *Markdown*, but the other can be looking for a way to make it easier to edit. The **TOAST UI Editor** can be the coordinator of both. It offers **Markdown mode** and **WYSIWYG mode**, those can be switched at any time during writing content. Work together conveniently in one document.'
+        initialEditType: 'markdown',
+        previewStyle: 'vertical',
+        initialValue: 'config 1\n```js hk\n{"a" : "b" }\n```\nconfig 2\n```js hk.wanchai\n {"c":"d"}\n```\n'
       });
-
-      $('#editor-spec').tuiEditor({
-          height: 'auto',
-          initialEditType: 'wysiwyg',
-          initialValue: '# <span style="color:#4b94e5">Features</span>\n' +
-          '* **![image](https://user-images.githubusercontent.com/1215767/34385443-38d6ba28-eb66-11e7-958b-67e71552fa68.png) Markdown mode**\n' +
-          '    * **Live Preview**: Edit Markdown while keeping eye on the rendered HTML. Your edits will be applied immediately\n' +
-          '    * **Scroll sync**: Synchronous scrolling between Markdown and Preview. You don\'t need to scroll those separately\n' +
-          '    * **Auto indent list**: The cursor will always be where you want to be\n' +
-          '    * **Syntax highlight**: You can check broken Markdown syntax immediately\n' +
-          '* **🚀 Wisywig mode**\n' +
-          '    * **Copy and paste**: Paste anything from browser, screenshot, excel, powerpoint etc\n' +
-          '    * **Codeblock editor**: Highlight 170+ languages with full width code editor\n' +
-          '    * **Table**: Hate the Markdown table? You can do everything with a mouse'
-      });
-
-      $('#editor-extension-chart').tuiEditor({
-          height: 'auto',
-          initialEditType: 'markdown',
-          previewStyle: 'vertical',
-          initialValue: '```chart\n' +
-          ' Budget Income "Expenses 1" "Expenses 2"\n' +
-          'June 5000 8000 4000 4000\n' +
-          'July 3000 1000 4000 3000\n' +
-          'Aug 5000 7000 6000 2000\n' +
-          'Sep 7000 2000 3000 4000\n' +
-          '\n' +
-          'type: column\n' +
-          'title: Monthly Revenue\n' +
-          'y.title: Amount\n' +
-          'x.title: Month\n' +
-          'legend.visible: false\n' +
-          '```\n'
-      });
-
-      $('#editor-extension-description').tuiEditor({
-          height: 'auto',
-          initialEditType: 'wysiwyg',
-          initialValue: '# <span style="color:#4b94e5">Extensions</span>\n' +
-          '*CommonMark* and *GFM* are great, but we often face requirements beyond the specifications. The **TOAST UI Editor** comes with powerful **Extensions** in compliance with the *Markdown* syntax. And it also provides APIs so you can develop your own extensions.\n' +
-          'Please check *https://github.com/nhnent/tui.editor/wiki/Extensions* to learn about **Extensions**.\n'
-      });
+	  $('#viewer').tuiEditor({
+				height: '300px',
+				viewer: true,
+				initialValue: ''
+	  });
+	  
 
       $(document).on('click', function(e) {
           if ($(e.target).parents('.show-only-text').length === 0) {
               $('.show-only-text').removeClass('show-toolbar');
           }
       });
-
-      $('#editSection').tuiEditor({
-          previewStyle: 'vertical',
-          height: 400,
-          initialEditType: 'markdown',
-          exts: ['scrollSync', 'colorSyntax', 'table', 'uml', 'chart']
-      });
+	  
+	  $("[class='fn-preview']").on('click', function(e) {
+			var text=$('#editor').data('tuiEditor').getMarkdown();
+			var result = extractJsonObj(text);
+			$('#viewer').data('tuiEditor').setValue("```js\n"+ JSON.stringify(result, null, 2) +"\n```");
+	  });
+	  
+	  $("[class='fn-download']").on('click', function(e) {
+			var text=$('#editor').data('tuiEditor').getMarkdown();
+			
+			var filename='export.json';
+			var pom = document.createElement('a');
+			pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+			pom.setAttribute('download', filename);
+	  
+			if (document.createEvent) {
+				var event = document.createEvent('MouseEvents');
+				event.initEvent('click', true, true);
+				pom.dispatchEvent(event);
+			}
+			else {
+				pom.click();
+			}
+	  });
     </script>
-    <!-- Facebook -->
-    <div id="fb-root"></div>
-    <script>(function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.11";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));</script>
-    <!-- Twitter -->
-    <script>window.twttr = (function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0],
-            t = window.twttr || {};
-        if (d.getElementById(id)) return t;
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "https://platform.twitter.com/widgets.js";
-        fjs.parentNode.insertBefore(js, fjs);
 
-        t._e = [];
-        t.ready = function(f) {
-            t._e.push(f);
-        };
-
-        return t;
-    }(document, "script", "twitter-wjs"));</script>
     <!-- Github -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
   </body>
